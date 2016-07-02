@@ -1,0 +1,15 @@
+#gitignore file
+# Temporary files
+*.o
+*.swp
+*.a
+
+# Generated binaries
+sim-bpred
+sim-cache
+sim-eio
+sim-fast
+sim-outorder
+sim-profile
+sim-safe
+sysprobe
