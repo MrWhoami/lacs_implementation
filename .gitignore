@@ -3,6 +3,7 @@
 *.o
 *.swp
 *.a
+tags
 
 # Generated binaries
 sim-bpred
@@ -13,3 +14,6 @@ sim-outorder
 sim-profile
 sim-safe
 sysprobe
+
+# Test results
+tests-alpha/results/*
