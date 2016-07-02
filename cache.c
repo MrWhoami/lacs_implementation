@@ -53,6 +53,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include "sim.h"//EDIT
 #include "host.h"
 #include "misc.h"
 #include "machine.h"
@@ -139,6 +140,8 @@
 /* bound sqword_t/dfloat_t to positive int */
 #define BOUND_POS(N)		((int)(MIN(MAX(0, (N)), 2147483647)))
 
+extern counter_t sim_num_insn;//EDIT
+
 /* unlink BLK from the hash table bucket chain in SET */
 static void
 unlink_htab_ent(struct cache_t *cp,		/* cache to update */
@@ -187,6 +190,35 @@ link_htab_ent(struct cache_t *cp,		/* cache to update */
 
 /* where to insert a block onto the ordered way chain */
 enum list_loc_t { Head, Tail };
+
+//EDIT
+unsigned int LACS_thresh = 80;
+unsigned int totalHigh = 0;
+unsigned int missCount = 0;
+static struct cache_blk_t* LACS_getVictim(struct cache_set_t *set)
+{
+    //fprintf("%s, line %d\n", __FILE__, __LINE__);
+    struct cache_blk_t* blk = set->way_head;
+    int i;
+    for(i = 0;i < 4;i++){
+        for(blk = set->way_head;blk != NULL;blk = blk->way_next){
+            if(blk->cost[0] == i){
+                return blk;
+            }
+        }
+    }
+    //fprintf("%s, line %d, %d\n", __FILE__, __LINE__);
+    return NULL;
+}
+
+static void LACS_init(struct cache_set_t *set)
+{
+    //fprintf("%s, line %d\n", __FILE__, __LINE__);
+    struct cache_blk_t* blk;
+    for(blk = set->way_head;blk != NULL;blk = blk->way_next)
+        blk->cost[0] = blk->cost[1];
+    //fprintf("%s, line %d\n", __FILE__, __LINE__);
+}
 
 /* insert BLK into the order way chain in SET at location WHERE */
 static void
@@ -378,6 +410,9 @@ cache_create(char *name,		/* name of the cache */
 	  bindex++;
 
 	  /* invalidate new cache block */
+      blk->IIR = 0;
+      blk->cost[0] = 0;
+      blk->cost[1] = 0;
 	  blk->status = 0;
 	  blk->tag = 0;
 	  blk->ready = 0;
@@ -409,6 +444,7 @@ cache_char2policy(char c)		/* replacement policy as a char */
   case 'l': return LRU;
   case 'r': return Random;
   case 'f': return FIFO;
+  case 's': return LACS;//EDIT
   default: fatal("bogus replacement policy, `%c'", c);
   }
 }
@@ -427,6 +463,7 @@ cache_config(struct cache_t *cp,	/* cache instance */
 	  cp->policy == LRU ? "LRU"
 	  : cp->policy == Random ? "Random"
 	  : cp->policy == FIFO ? "FIFO"
+      : cp->policy == LACS ? "LACS"   //EDIT
 	  : (abort(), ""));
 }
 
@@ -566,6 +603,7 @@ cache_access(struct cache_t *cp,	/* cache to access */
 
   /* **MISS** */
   cp->misses++;
+  missCount++;
 
   /* select the appropriate block to replace, and re-link this entry to
      the appropriate place in the way list */
@@ -580,6 +618,10 @@ cache_access(struct cache_t *cp,	/* cache to access */
       int bindex = myrand() & (cp->assoc - 1);
       repl = CACHE_BINDEX(cp, cp->sets[set].blks, bindex);
     }
+    break;
+  case LACS://EDIT
+    repl = LACS_getVictim(&cp->sets[set]);
+    repl->IIR = sim_num_insn;
     break;
   default:
     panic("bogus replacement policy");
@@ -649,6 +691,28 @@ cache_access(struct cache_t *cp,	/* cache to access */
   if (cp->hsize)
     link_htab_ent(cp, &cp->sets[set], repl);
 
+  if (cp->policy == LACS){//EDIT
+    //fprintf("%s, line %d\n", __FILE__, __LINE__);
+      if(missCount % 16000 == 0){
+          if(totalHigh < 512)
+              LACS_thresh += 8;
+          else if(totalHigh > 1024)
+              LACS_thresh -= 8;
+      }
+      repl->IIR = sim_num_insn - repl->IIR;
+      if(repl->IIR < LACS_thresh){
+          totalHigh++;
+          if(repl->cost[1] < 3)
+              repl->cost[1]++;
+      }
+      else{
+          if(repl->cost[1] > 0)
+              repl->cost[1]--;
+      }
+      LACS_init(&cp->sets[set]);
+    //fprintf("%s, line %d\n", __FILE__, __LINE__);
+  }
+
   /* return latency of the operation */
   return lat;
 
@@ -674,6 +738,13 @@ cache_access(struct cache_t *cp,	/* cache to access */
       /* move this block to head of the way (MRU) list */
       update_way_list(&cp->sets[set], blk, Head);
     }
+
+  if (cp->policy == LACS){//EDIT
+    //fprintf("%s, line %d\n", __FILE__, __LINE__);
+      if(blk->cost[0] < 3)
+          blk->cost[0] = blk->cost[0] + 1;
+    //fprintf("%s, line %d\n", __FILE__, __LINE__);
+  }
 
   /* tag is unchanged, so hash links (if they exist) are still valid */
 

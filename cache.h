@@ -102,7 +102,8 @@
 enum cache_policy {
   LRU,		/* replace least recently used block (perfect LRU) */
   Random,	/* replace a random block */
-  FIFO		/* replace the oldest block in the set */
+  FIFO,		/* replace the oldest block in the set */
+  LACS
 };
 
 /* block status values */
@@ -112,6 +113,8 @@ enum cache_policy {
 /* cache block (or line) definition */
 struct cache_blk_t
 {
+  unsigned int IIR;//EDIT
+  unsigned short cost[2];//EDIT
   struct cache_blk_t *way_next;	/* next block in the ordered way chain, used
 				   to order blocks for replacement */
   struct cache_blk_t *way_prev;	/* previous block in the order way chain */

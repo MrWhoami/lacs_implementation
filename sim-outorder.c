@@ -307,7 +307,7 @@ struct res_desc fu_config[] = {
 static counter_t sim_slip = 0;
 
 /* total number of instructions executed */
-static counter_t sim_total_insn = 0;
+static counter_t sim_total_insn = 0;//EDIT
 
 /* total number of memory references committed */
 static counter_t sim_num_refs = 0;
@@ -4053,6 +4053,7 @@ ruu_dispatch(void)
 
         /* one more instruction executed, speculative or otherwise */
         sim_total_insn++;
+        sim_num_insn = sim_total_insn;
         if (MD_OP_FLAGS(op) & F_CTRL)
             sim_total_branches++;
 
