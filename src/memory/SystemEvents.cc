@@ -374,6 +374,7 @@ void System::EventLoadHandler(esim::Event *event, esim::Frame *esim_frame)
 
 		// Return
 		esim_engine->Return();
+        cache->updateLACS(frame->set,frame->way);
 		return;
 	}
 

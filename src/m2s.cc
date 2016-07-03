@@ -64,6 +64,8 @@ extern "C"
 // Configuration options
 //
 
+long long my_global_insn = 0;
+
 // Context configuration file
 std::string m2s_context_config;
 

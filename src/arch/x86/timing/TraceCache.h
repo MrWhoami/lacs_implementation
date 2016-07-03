@@ -23,7 +23,7 @@
 #include <lib/cpp/IniFile.h>
 
 #include "Uop.h"
-
+extern long long my_global_insn;
 namespace x86
 {
 
@@ -279,7 +279,7 @@ public:
 
 	/// Increment the number of issued micor-instructions coming from the
 	/// trace cache
-	void incNumIssuedUinsts() { num_issued_uinsts++; }
+	void incNumIssuedUinsts() { num_issued_uinsts++; my_global_insn++; }
 
 	/// Increment the number of squashed micro-instructions coming from the
 	/// trace cache

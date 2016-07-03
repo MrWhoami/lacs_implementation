@@ -431,7 +431,7 @@ Copyright (C) 2012 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/whoami/Downloads/multi2sim-5.0'
+ac_pwd='/home/whoami/Documents/simplesim-3.0'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/bin/mkdir -p'
@@ -908,9 +908,6 @@ S["PKGDATADIR"]="${datarootdir}/multi2sim"
 S["DATADIR"]="${prefix}/share"
 S["HAVE_GTK_FALSE"]=""
 S["HAVE_GTK_TRUE"]="#"
-S["GTK_LIBS"]=""
-S["GTK_CFLAGS"]=""
-S["PKG_CONFIG"]="/usr/bin/pkg-config"
 S["GTEST_LIBS"]="-lpthread -pthread"
 S["GTEST_LDFLAGS"]=""
 S["GTEST_CXXFLAGS"]=""
@@ -997,12 +994,12 @@ S["mkdir_p"]="$(MKDIR_P)"
 S["MKDIR_P"]="/bin/mkdir -p"
 S["INSTALL_STRIP_PROGRAM"]="$(install_sh) -c -s"
 S["STRIP"]="strip"
-S["install_sh"]="${SHELL} /home/whoami/Downloads/multi2sim-5.0/install-sh"
-S["MAKEINFO"]="${SHELL} /home/whoami/Downloads/multi2sim-5.0/missing makeinfo"
-S["AUTOHEADER"]="${SHELL} /home/whoami/Downloads/multi2sim-5.0/missing autoheader"
-S["AUTOMAKE"]="${SHELL} /home/whoami/Downloads/multi2sim-5.0/missing automake-1.14"
-S["AUTOCONF"]="${SHELL} /home/whoami/Downloads/multi2sim-5.0/missing autoconf"
-S["ACLOCAL"]="${SHELL} /home/whoami/Downloads/multi2sim-5.0/missing aclocal-1.14"
+S["install_sh"]="${SHELL} /home/whoami/Documents/simplesim-3.0/install-sh"
+S["MAKEINFO"]="${SHELL} /home/whoami/Documents/simplesim-3.0/missing makeinfo"
+S["AUTOHEADER"]="${SHELL} /home/whoami/Documents/simplesim-3.0/missing autoheader"
+S["AUTOMAKE"]="${SHELL} /home/whoami/Documents/simplesim-3.0/missing automake-1.14"
+S["AUTOCONF"]="${SHELL} /home/whoami/Documents/simplesim-3.0/missing autoconf"
+S["ACLOCAL"]="${SHELL} /home/whoami/Documents/simplesim-3.0/missing aclocal-1.14"
 S["VERSION"]="5.0"
 S["PACKAGE"]="multi2sim"
 S["CYGPATH_W"]="echo"

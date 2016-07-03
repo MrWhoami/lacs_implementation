@@ -165,6 +165,12 @@ public:
 		return tail ? tail->data : nullptr;
 	}
 
+    //EDIT
+    T *Next(Node &cur)
+    {
+        return cur.next ? cur.next->data : nullptr;
+    }
+
 	/// Insert a node in the list before the node pointed to by the
 	/// iterator, or at the end if the iterator is a past-the-end
 	/// iterator.

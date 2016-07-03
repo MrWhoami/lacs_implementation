@@ -33,7 +33,7 @@
 #include "Thread.h"
 #include "Uop.h"
 
-
+extern long long my_global_insn;
 namespace x86
 {
 
@@ -567,6 +567,7 @@ public:
 		assert(opcode < Uinst::OpcodeCount);
 		num_issued_uinst_array[opcode]++;
 		num_issued_uinsts++;
+        my_global_insn++;
 	}
 
 	/// Return the array of issued micro-instructions

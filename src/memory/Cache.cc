@@ -20,7 +20,7 @@
 #include "Cache.h"
 #include "System.h"
 
-
+extern long long my_global_insn;
 namespace mem
 {
 
@@ -28,7 +28,8 @@ const misc::StringMap Cache::ReplacementPolicyMap =
 {
 	{ "LRU", ReplacementLRU },
 	{ "FIFO", ReplacementFIFO },
-	{ "Random", ReplacementRandom }
+	{ "Random", ReplacementRandom },
+    { "LACS", ReplacementLACS },//EDIT
 };
 
 
@@ -160,6 +161,35 @@ void Cache::setBlock(unsigned set_id,
 	block->state = state;
 }
 
+void Cache::updateLACS(unsigned set_id,
+		unsigned way_id)
+{	
+	// Get set and block
+	Set *set = getSet(set_id);
+	Block *block = getBlock(set_id, way_id);
+
+	if (replacement_policy == ReplacementLACS)
+	{
+        if(missCount % 16000 == 0){
+            if(totalHigh < 512)
+                LACSthresh += 8;
+            else if(totalHigh > 1024)
+                LACSthresh -= 8;
+        }
+		if(block->IIR != 0){
+            block->IIR = my_global_insn - block->IIR;
+            if(block->IIR < LACSthresh){
+                totalHigh++;
+                if(block->cost[0] < 3)
+                    block->cost[0]++;
+            }
+            else if(block->cost[0] > 0)
+                block->cost[0]--;
+            block->IIR = 0;
+        }
+	}
+}
+
 
 void Cache::getBlock(unsigned set_id,
 		unsigned way_id,
@@ -191,11 +221,18 @@ void Cache::AccessBlock(unsigned set_id, unsigned way_id)
 		set->lru_list.Erase(block->lru_node);
 		set->lru_list.PushFront(block->lru_node);
 	}
+
+    if(replacement_policy == ReplacementLACS){
+        if(block->cost[0] < 3)
+            block->cost[0]++;
+    }
 }
 
 
 unsigned Cache::ReplaceBlock(unsigned set_id)
 {
+    long long temp_insn = my_global_insn;
+    missCount++;
 	// Get the set
 	Set *set = getSet(set_id);
 
@@ -216,6 +253,23 @@ unsigned Cache::ReplaceBlock(unsigned set_id)
 		// Return way index of the selected block
 		return block->way_id;
 	}
+
+    if (replacement_policy == ReplacementLACS)
+    {
+		Block *block = misc::cast<Block *>(set->lru_list.Back());
+        for(int i = 0;i < 4;i++)
+        {
+            for(block = misc::cast<Block *>(set->lru_list.Front());block != NULL;block = misc::cast<Block *>(set->lru_list.Next(block->lru_node)))
+            {
+                assert(block);
+                if(block->cost[0] == i){
+                    block->IIR = temp_insn;
+                    return block->way_id;
+                }
+            }
+        }
+        printf("Error\n");
+    }
 
 	// Random replacement policy
 	assert(replacement_policy == ReplacementRandom);

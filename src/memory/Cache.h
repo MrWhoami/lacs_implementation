@@ -33,13 +33,17 @@ class Cache
 {
 public:
 
+    int missCount = 0;
+    int totalHigh = 0;
+    int LACSthresh = 80;
 	/// Possible values for block replacement policy
 	enum ReplacementPolicy
 	{
 		ReplacementInvalid,
 		ReplacementLRU,
 		ReplacementFIFO,
-		ReplacementRandom
+		ReplacementRandom,
+        ReplacementLACS//EDIT
 	};
 
 	/// String map for ReplacementPolicy
@@ -92,6 +96,10 @@ public:
 
 		// The block belongs to an LRU list
 		misc::List<Block>::Node lru_node;
+
+        //EDIT
+        long long IIR = 0;
+        unsigned short cost[2] = { 0, 0 };
 	
 	public:
 
@@ -252,6 +260,8 @@ public:
 			unsigned way_id,
 			unsigned tag,
 			BlockState state);
+
+    void updateLACS(unsigned set_id, unsigned way_id);
 
 	/// Return the tag and the state of a cache block.
 	///
