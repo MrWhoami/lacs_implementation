@@ -1,20 +1,17 @@
 #gitignore file
 # Temporary files
 *.o
+*.lo
+*.la
+*.lai
+*.so
+*.so.*
 *.swp
 *.a
 *.out
 tags
 
 # Generated binaries
-sim-bpred
-sim-cache
-sim-eio
-sim-fast
-sim-outorder
-sim-profile
-sim-safe
-sysprobe
+bin/*
 
 # Test results
-tests-alpha/results/*
